@@ -1,16 +1,25 @@
 import java.rmi.*;
-public interface CallbackServerInterface extends Remote{
-   // metodo para obtener el objeto remoto de otro cliente
-    public String sayHello( )
-            throws java.rmi.RemoteException;
-    public void registerForCallback(
-            CallbackClientInterface callbackClientObject
-    ) throws java.rmi.RemoteException;
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+import java.util.Set;
 
-// This remote method allows an object client to
-// cancel its registration for callback
+public interface CallbackServerInterface extends Remote {
+    // metodo para obtener el objeto remoto de otro cliente
+    String sayHello() throws RemoteException;
 
-    public void unregisterForCallback(
-            CallbackClientInterface callbackClientObject)
-            throws java.rmi.RemoteException;
+    void registrarCliente(CallbackClientInterface cliente) throws RemoteException;
+
+    void suprimirCliente(CallbackClientInterface cliente) throws RemoteException;
+
+    void enviarContacto(CallbackClientInterface usuarioEnvia, String usuarioEnviar, String direccionObjeto) throws java.rmi.RemoteException;
+
+    void getCantidadClientes(CallbackClientInterface cliente) throws RemoteException;
+
+    void getListaUsuarios(CallbackClientInterface cliente) throws RemoteException;
+
+    void crearGrupoAmistad(String groupName) throws RemoteException;
+
+    void agregarAmistad(String usuario1, String usuario2) throws RemoteException;
+
+    Set<String> obtenerAmistades(String groupName) throws RemoteException;
 }

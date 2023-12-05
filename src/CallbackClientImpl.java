@@ -12,4 +12,9 @@ public class CallbackClientImpl extends UnicastRemoteObject
         MainApp.actualizarListaUsuarios(message);
         return returnMessage;
     }
+
+    @Override
+    public String getClientId() throws RemoteException {
+        return null;
+    }
 }
