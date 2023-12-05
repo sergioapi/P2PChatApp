@@ -48,7 +48,7 @@ public class MainApp {
 // Registro al cliente para recibir Callbacks
         try {
             remoto = new CallbackClientImpl();
-            server.registerForCallback(remoto);
+            server.registrarCliente(remoto);
             System.out.println("Registered for callback.");
 
 
@@ -68,7 +68,7 @@ public class MainApp {
 
 // Me desuscribo
         try {
-            server.unregisterForCallback(remoto);
+            server.suprimirCliente(remoto);
             System.out.println("Unregistered for callback.");
 
         } catch (RemoteException ex) {
