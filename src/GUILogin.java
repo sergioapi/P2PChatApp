@@ -60,7 +60,7 @@ public class GUILogin {
 
                     // logica de la continuacion del logging
                     frame.setVisible(false); // Oculta la ventana de login
-                    new GUIChat(); // Abre la nueva GUI
+                    new GUIChat(controller); // Abre la nueva GUI
                 }
             }
         });
