@@ -22,7 +22,7 @@ public class GUIChat {
     private Map<String, String> mensajesPorUsuario;
     private JList<String> nombresList;
 
-    public GUIChat() {
+    public GUIChat(UserController user) {
         nombres = new ArrayList<>();
         nombres.add("Fran");
         nombres.add("Alicia");
@@ -168,16 +168,5 @@ public class GUIChat {
             // Actualiza el área de chat en la GUI solo si el mensaje es del usuario actualmente seleccionado
             chatArea.setText(chatHistory);
         }
-    }
-
-
-
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                new GUIChat();
-            }
-        });
     }
 }

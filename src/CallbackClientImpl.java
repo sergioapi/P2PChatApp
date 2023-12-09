@@ -6,15 +6,13 @@ public class CallbackClientImpl extends UnicastRemoteObject
         super( );
     }
 
-    public String notifyMe(String message){
-        String returnMessage = "Call back received: " + message;
-        System.out.println(returnMessage);
-        MainApp.actualizarListaUsuarios(message);
-        return returnMessage;
+    @Override
+    public void amigoConectado(Usuario usuario) throws RemoteException {
+
     }
 
     @Override
-    public String getClientId() throws RemoteException {
-        return null;
+    public void amigoDesconectado(Usuario usuario) throws RemoteException {
+
     }
 }

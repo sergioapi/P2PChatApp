@@ -1,25 +1,26 @@
-import java.rmi.*;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.util.Set;
+import java.util.ArrayList;
 
 public interface CallbackServerInterface extends Remote {
-    // metodo para obtener el objeto remoto de otro cliente
-    String sayHello() throws RemoteException;
+    public Usuario iniciarSesion(CallbackClientInterface cliente, String username, String contrasena) throws RemoteException;
 
-    void registrarCliente(CallbackClientInterface cliente) throws RemoteException;
+    public Usuario registrarUsuario(CallbackClientInterface cliente, String username, String contrasena);
 
-    void suprimirCliente(CallbackClientInterface cliente) throws RemoteException;
+    public void eliminarUsuario(Usuario usuario, String contrasena) throws RemoteException;
 
-    void enviarContacto(CallbackClientInterface usuarioEnvia, String usuarioEnviar, String direccionObjeto) throws java.rmi.RemoteException;
+    public void cerrarSesion(Usuario usuario) throws RemoteException;
 
-    void getCantidadClientes(CallbackClientInterface cliente) throws RemoteException;
+    public void aceptarAmistad(Usuario usuario1, Usuario usuario2) throws RemoteException;
 
-    void getListaUsuarios(CallbackClientInterface cliente) throws RemoteException;
+    public void pedirAmistad(String usuario1, String usuario2);
 
-    void crearGrupoAmistad(String groupName) throws RemoteException;
+    public void rechazarAmistad(String usuario1, String usuario2);
 
-    void agregarAmistad(String usuario1, String usuario2) throws RemoteException;
+    public void eliminarAmigo(Usuario usuario1, Usuario usuario2) throws RemoteException;
 
-    Set<String> obtenerAmistades(String groupName) throws RemoteException;
+    public ArrayList<String> obtenerAmistades(String usuario) throws RemoteException;
+
+    public String obtenerDireccion(String usuario);
+
 }

@@ -1,8 +1,6 @@
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.rmi.RemoteException;
 
 public class GUILogin {
@@ -20,7 +18,7 @@ public class GUILogin {
     // Constante de intentos máximos de login antes de que se cierre la aplicación
     private int intentos = 3;
 
-    public GUILogin(CallbackServerInterface servidor, CallbackClientInterface cliente) {
+    public GUILogin(UserController controller) {
 
         frame = new JFrame("CHATAPP"); // Inicializa el JFrame
 
@@ -39,7 +37,7 @@ public class GUILogin {
 
 
                 // Si no existe sacamos una ventana emergente
-                if (!servidor.iniciarSesion(cliente, usuario, contrasenha)) {
+                if (!controller.iniciarSesion(usuario, contrasenha)) {
 
                     // Disminuimos los intentos
                     intentos--;
@@ -80,37 +78,32 @@ public class GUILogin {
                 // Comprobamos si existe el usuario en la base de datos del servidor
                 System.out.println("Usuario: " + usuario + "\nContraseña: " + contrasenha);
 
+                // Si el usuario ya existe en la base de datos sacamos una ventana emergente
+                if (!controller.registrarse(usuario, contrasenha)) {
+                    JOptionPane.showMessageDialog(null, "El usuario ya existe.", "Error de registro", JOptionPane.ERROR_MESSAGE);
 
-                try {
-                    // Si el usuario ya existe en la base de datos sacamos una ventana emergente
-                    if (!servidor.registrarCliente(cliente, usuario, contrasenha)) {
-                        JOptionPane.showMessageDialog(null, "El usuario ya existe.", "Error de registro", JOptionPane.ERROR_MESSAGE);
-
-                        // Borrar el contenido de los campos
-                        CUsuario.setText("");
-                        passwordField1.setText("");
-                    } else { // Si el registro se hizo correctamente
-                        // Logica de la continuacion del registro
-                    }
-                } catch (RemoteException ex) {
-                    throw new RuntimeException(ex);
+                    // Borrar el contenido de los campos
+                    CUsuario.setText("");
+                    passwordField1.setText("");
+                } else { // Si el registro se hizo correctamente
+                    // Logica de la continuacion del registro
                 }
             }
         });
 
-        // Agrega un WindowListener para detectar el cierre de la ventana
+        /*Agrega un WindowListener para detectar el cierre de la ventana
         JFrame frame = new JFrame("CHATAPP");
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
                 // Llama a la función que de offlineCliente antes de cerrar la aplicación
                 try {
-                    GUIcierre(servidor, cliente, usuario, contrasenha);
+                    //GUIcierre(servidor, cliente, usuario, contrasenha);
                 } catch (RemoteException ex) {
                     throw new RuntimeException(ex);
                 }
             }
-        });
+        });*/
 
         // Configurar el cierre de la ventana
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -130,7 +123,7 @@ public class GUILogin {
 
         if (servidor != null && usuario != null && contraseña != null) {
             // Desconectamos al usuario si se cierra la app
-            servidor.cerrarSesion(cliente, usuario);
+            //servidor.cerrarSesion(cliente, usuario);
         }
 
         // Cerramos la app
