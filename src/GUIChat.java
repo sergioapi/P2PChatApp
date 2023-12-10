@@ -3,11 +3,10 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.awt.event.*;
 
 public class GUIChat {
     private JFrame frame;
@@ -23,11 +22,8 @@ public class GUIChat {
     private JMenuBar menuBar;
     private JPanel mainPanel;
 
-    public GUIChat() {
+    public GUIChat(UserController controller) {
         nombres = new ArrayList<>();
-        nombres.add("Fran");
-        nombres.add("Alicia");
-        nombres.add("Mauro");
 
         frame = new JFrame("P2P ChatApp");
         chatArea = new JTextArea("¡Selecciona un chat para empezar a hablar!");
@@ -80,12 +76,21 @@ public class GUIChat {
                 String nombreIngresado = JOptionPane.showInputDialog(frame, "Ingresa el nombre para la solicitud de amistad:");
                 if (nombreIngresado != null && !nombreIngresado.trim().isEmpty()) {
                     String nombreSolicitado = nombreIngresado.trim();
-                    // Aquí puedes implementar la lógica adicional con el nombre ingresado
-                    System.out.println("Nombre solicitado: " + nombreSolicitado); // Ejemplo de impresión
+                    // Lógica adicional con el nombre ingresado
+                    controller.pedirAmistad(nombreIngresado);
                 }
             }
         });
 
+        // Desconexión de usuario en caso de que se cierre la ventana
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                // Cierro sesión
+                controller.cerrarSesion();
+                frame.dispose(); // Opcional, cierra la ventana
+            }
+        });
 
         nombresList.clearSelection(); // Asegurarse de que no haya selección inicial
         nombresList.addListSelectionListener(e -> {
@@ -99,9 +104,10 @@ public class GUIChat {
             }
         });
 
-        sendButton.addActionListener(e -> sendMessage(inputField.getText()));
-        inputField.addActionListener(e -> sendMessage(inputField.getText()));
+        sendButton.addActionListener(e -> sendMessage(controller, inputField.getText()));
+        inputField.addActionListener(e -> sendMessage(controller, inputField.getText()));
 
+        // Si se cierra la ventana se cierra la app
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(600, 300);
 
@@ -109,8 +115,6 @@ public class GUIChat {
         frame.setLocationRelativeTo(null);
 
         frame.setVisible(true);
-
-        startTerminalReader();
     }
 
 
@@ -136,34 +140,16 @@ public class GUIChat {
         return chatPanel;
     }
 
-    private void startTerminalReader() {
-        try {
-            process = Runtime.getRuntime().exec("/bin/bash");
-            reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-
-            timer = new Timer(100, e -> {
-                try {
-                    if (reader.ready()) {
-                        String message = reader.readLine();
-                        appendMessage("terminal: ", message);
-                    }
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-            });
-            timer.start();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void sendMessage(String message) {
+    private void sendMessage(UserController controller, String message) {
         if (message.isEmpty() || nombresList.getSelectedValue() == null) {
             return;
         }
 
         String selectedName = nombresList.getSelectedValue();
         String chatHistory = mensajesPorUsuario.getOrDefault(selectedName, "");
+
+        Mensaje mensaje = new Mensaje(selectedName, controller.getNombreUsuario(), message);
+        // TODO envío mensaje
 
         chatHistory += "You: " + message + "\n";
         mensajesPorUsuario.put(selectedName, chatHistory);
@@ -193,7 +179,7 @@ public class GUIChat {
         listaNombresPanel.setLayout(new BoxLayout(listaNombresPanel, BoxLayout.Y_AXIS));
 
         // Nombres a mostrar
-        String[] nombres = {"María", "Juan", "Roberto", "María", "Juan", "Roberto", "María", "Juan", "Roberto", "María", "Juan", "Roberto"};
+        String[] nombres = new String[]{};
 
         // Crear un panel para cada nombre
         for (String nombre : nombres) {
@@ -236,13 +222,7 @@ public class GUIChat {
         amigosPanel.setLayout(new BorderLayout());
         JLabel label = new JLabel("Lista de Amigos", JLabel.CENTER);
         amigosPanel.add(label, BorderLayout.CENTER);
-        // Aquí puedes agregar más componentes a tu panel de amigos
+
         return amigosPanel;
-    }
-
-
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new GUIChat());
     }
 }

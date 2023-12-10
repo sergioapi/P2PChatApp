@@ -20,7 +20,7 @@ public class GUILogin {
 
     public GUILogin(UserController controller) {
 
-        frame = new JFrame("CHATAPP"); // Inicializa el JFrame
+        frame = new JFrame("P2P - ChatApp"); // Inicializa el JFrame
 
         entrarButton.addActionListener(new ActionListener() {
 
@@ -33,9 +33,6 @@ public class GUILogin {
                 contrasenha = new String(passwordField1.getPassword());
 
                 // Comprobamos si existe el usuario en la base de datos del servidor
-                System.out.println("Usuario: " + usuario + "\nContraseña: " + contrasenha);
-
-
                 // Si no existe sacamos una ventana emergente
                 if (!controller.iniciarSesion(usuario, contrasenha)) {
 
@@ -60,7 +57,6 @@ public class GUILogin {
 
                     // logica de la continuacion del logging
                     frame.setVisible(false); // Oculta la ventana de login
-                    new GUIChat(controller); // Abre la nueva GUI
                 }
             }
         });
@@ -76,8 +72,6 @@ public class GUILogin {
                 contrasenha = new String(passwordField1.getPassword());
 
                 // Comprobamos si existe el usuario en la base de datos del servidor
-                System.out.println("Usuario: " + usuario + "\nContraseña: " + contrasenha);
-
                 // Si el usuario ya existe en la base de datos sacamos una ventana emergente
                 if (!controller.registrarse(usuario, contrasenha)) {
                     JOptionPane.showMessageDialog(null, "El usuario ya existe.", "Error de registro", JOptionPane.ERROR_MESSAGE);
@@ -91,20 +85,6 @@ public class GUILogin {
             }
         });
 
-        /*Agrega un WindowListener para detectar el cierre de la ventana
-        JFrame frame = new JFrame("CHATAPP");
-        frame.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                // Llama a la función que de offlineCliente antes de cerrar la aplicación
-                try {
-                    //GUIcierre(servidor, cliente, usuario, contrasenha);
-                } catch (RemoteException ex) {
-                    throw new RuntimeException(ex);
-                }
-            }
-        });*/
-
         // Configurar el cierre de la ventana
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
@@ -116,23 +96,6 @@ public class GUILogin {
 
         // Hacer visible la ventana
         frame.setVisible(true);
-    }
-
-    // La función que deseas ejecutar antes de cerrar la aplicación
-    private void GUIcierre(CallbackServerInterface servidor, CallbackClientInterface cliente, String usuario, String contraseña) throws RemoteException {
-
-        if (servidor != null && usuario != null && contraseña != null) {
-            // Desconectamos al usuario si se cierra la app
-            //servidor.cerrarSesion(cliente, usuario);
-        }
-
-        // Cerramos la app
-        System.exit(0);
-    }
-
-
-    private void createUIComponents() {
-        // TODO: place custom component creation code here
     }
 
 }
