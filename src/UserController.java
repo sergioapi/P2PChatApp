@@ -44,21 +44,41 @@ public class UserController {
     }
 
     public boolean pedirAmistad(String usuario) {
-        server.pedirAmistad(user.getUsername(), usuario);
-        return true;
+        return server.pedirAmistad(user.getUsername(), usuario);
     }
 
-    public boolean aceptarAmistad() {
-        server.aceptarAmistad(user.getUsername(), );
+    public boolean aceptarAmistad(String username) {
+        Usuario nuevoAmigo = null;
+        try {
+            nuevoAmigo = server.aceptarAmistad(user, username);
+            if (nuevoAmigo != null) {
+                user.eliminarSolicitud(username);
+                if (nuevoAmigo.isConectado())
+                    user.anadirAmigo(nuevoAmigo);
+                else user.anadirAmigo(username);
+            }
+        } catch (RemoteException e) {
+            System.out.println(e.getMessage());
+        }
+        return false;
     }
 
     public boolean rechazarAmistad(String usuario) {
-        server.rechazarAmistad(user.getUsername(), usuario);
-        return true;
+        if (server.rechazarAmistad(user.getUsername(), usuario)) {
+            user.eliminarSolicitud(usuario);
+        }
+        return false;
     }
 
-    public boolean eliminarAmigo() {
-        server.eliminarAmigo(user, );
+    public boolean eliminarAmigo(String usuario) {
+        try {
+            if (server.eliminarAmigo(user, usuario)) {
+                user.eliminarAmigo(usuario);
+            }
+        } catch (RemoteException e) {
+            System.out.println(e.getMessage());
+        }
+        return false;
 
     }
 

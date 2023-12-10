@@ -59,6 +59,7 @@ public class MainApp {
             GUIChat chat = new GUIChat(controller);
         } catch (RemoteException e) {
             System.out.println(e.getMessage());
+
         } catch (MalformedURLException e) {
             System.out.println(e.getMessage());
         }

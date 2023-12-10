@@ -7,14 +7,27 @@ public class Usuario {
     String remoteURL;
     ArrayList<String> amigos;
     ArrayList<Usuario> amigosConectados;
+    ArrayList<String> solicitudesPendientes;
     boolean conectado;
 
-    public Usuario(CallbackClientInterface cliente, String username, String remoteURL, ArrayList<String> amigos, ArrayList<Usuario> amigosConectados) {
+    public Usuario(CallbackClientInterface cliente, String username, String remoteURL, ArrayList<String> amigos, ArrayList<Usuario> amigosConectados, ArrayList<String> solicitudesPendientes) {
         this.cliente = cliente;
         this.username = username;
         this.remoteURL = remoteURL;
         this.amigos = amigos;
         this.amigosConectados = amigosConectados;
+        this.solicitudesPendientes = solicitudesPendientes;
+    }
+
+    public Usuario(CallbackClientInterface cliente, String username, String remoteURL) {
+        this.cliente = cliente;
+        this.username = username;
+        this.remoteURL = remoteURL;
+    }
+
+    public Usuario(String username, boolean conectado) {
+        this.username = username;
+        this.conectado = conectado;
     }
 
     public CallbackClientInterface getCliente() {
@@ -62,8 +75,35 @@ public class Usuario {
         amigosConectados.add(usuario);
     }
 
-    public void eliminarAmigo(Usuario usuario) {
-        amigos.remove(usuario.getUsername());
-        amigosConectados.remove(usuario);
+    public void anadirAmigo(String username) {
+        amigos.add(username);
+    }
+
+    public void eliminarAmigo(String usuario) {
+        amigos.remove(usuario);
+        for (Usuario amigo : amigosConectados) {
+            if (amigo.getUsername().equals(usuario))
+                amigosConectados.remove(amigo);
+        }
+    }
+
+    public void anadirSolicitud(String username) {
+        solicitudesPendientes.add(username);
+    }
+
+    public void eliminarSolicitud(String username) {
+        solicitudesPendientes.remove(username);
+    }
+
+    public ArrayList<String> getSolicitudesPendientes() {
+        return solicitudesPendientes;
+    }
+
+    public void setSolicitudesPendientes(ArrayList<String> solicitudesPendientes) {
+        this.solicitudesPendientes = solicitudesPendientes;
+    }
+
+    public boolean isConectado() {
+        return conectado;
     }
 }
