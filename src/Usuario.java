@@ -1,6 +1,8 @@
+import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.io.Serializable;
 
-public class Usuario {
+public class Usuario implements Serializable {
 
     CallbackClientInterface cliente;
     String username;
@@ -9,6 +11,8 @@ public class Usuario {
     ArrayList<Usuario> amigosConectados;
     ArrayList<String> solicitudesPendientes;
     boolean conectado;
+
+    MensajeroInterface mensajero;
 
     public Usuario(CallbackClientInterface cliente, String username, String remoteURL, ArrayList<String> amigos, ArrayList<Usuario> amigosConectados, ArrayList<String> solicitudesPendientes) {
         this.cliente = cliente;
@@ -103,7 +107,38 @@ public class Usuario {
         this.solicitudesPendientes = solicitudesPendientes;
     }
 
+    public Usuario getAmigo(String username) {
+        Usuario usuario = null;
+        for (Usuario amigo : amigosConectados) {
+            if (amigo.getUsername().equals(username)) {
+                usuario = amigo;
+                break;
+            }
+        }
+        if (usuario == null)
+            if (amigos.contains(username)) {
+                usuario = new Usuario(username, false);
+            }
+        return usuario;
+    }
+
     public boolean isConectado() {
         return conectado;
+    }
+
+    public void recibirMensaje(String mensaje) throws RemoteException {
+        mensajero.recibirMsj(mensaje);
+    }
+
+    public MensajeroInterface getMensajero() {
+        return mensajero;
+    }
+
+    public void setMensajero(MensajeroInterface mensajero) {
+        this.mensajero = mensajero;
+    }
+
+    public boolean chatIniciado() {
+        return mensajero != null;
     }
 }

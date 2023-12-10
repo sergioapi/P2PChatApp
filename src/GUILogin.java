@@ -4,11 +4,11 @@ import java.awt.event.ActionListener;
 import java.rmi.RemoteException;
 
 public class GUILogin {
-    private JFrame frame;
+    private JDialog dialog;
     private JPanel panel1;
     private JTextField CUsuario;
     private JLabel Contraseña;
-    private JLabel Usuaro;
+    private JLabel Usuario;
     private JPasswordField passwordField1;
     private JButton entrarButton;
     private JButton registrarButton;
@@ -19,83 +19,54 @@ public class GUILogin {
     private int intentos = 3;
 
     public GUILogin(UserController controller) {
-
-        frame = new JFrame("P2P - ChatApp"); // Inicializa el JFrame
+        dialog = new JDialog();
+        dialog.setTitle("P2P - ChatApp");
+        dialog.setModal(true); // Hace que el diálogo sea modal
 
         entrarButton.addActionListener(new ActionListener() {
-
-            // Logging usuario
             @Override
             public void actionPerformed(ActionEvent e) {
-
-                // Guardamos usuario y contraseña
                 usuario = CUsuario.getText();
                 contrasenha = new String(passwordField1.getPassword());
 
-                // Comprobamos si existe el usuario en la base de datos del servidor
-                // Si no existe sacamos una ventana emergente
                 if (!controller.iniciarSesion(usuario, contrasenha)) {
-
-                    // Disminuimos los intentos
                     intentos--;
-
-                    // Calcular los intentos restantes
                     if (intentos > 0) {
-                        // Si hay intentos restantes, mostrar el mensaje con el número de intentos restantes
-                        JOptionPane.showMessageDialog(null, "Usuario no encontrado o contraseña incorrecta. Intentos restantes: " + intentos, "Error de inicio de sesión", JOptionPane.ERROR_MESSAGE);
-
-                        // Borrar el contenido de los campos
+                        JOptionPane.showMessageDialog(dialog, "Usuario no encontrado o contraseña incorrecta. Intentos restantes: " + intentos, "Error de inicio de sesión", JOptionPane.ERROR_MESSAGE);
                         CUsuario.setText("");
                         passwordField1.setText("");
                     } else {
-                        // Si se agotaron los intentos, mostrar un mensaje y cerrar la aplicación
-                        JOptionPane.showMessageDialog(null, "Se agotaron los intentos. La aplicación se cerrará.", "Error de inicio de sesión", JOptionPane.ERROR_MESSAGE);
-                        // Cerrar la aplicación
+                        JOptionPane.showMessageDialog(dialog, "Se agotaron los intentos. La aplicación se cerrará.", "Error de inicio de sesión", JOptionPane.ERROR_MESSAGE);
                         System.exit(0);
                     }
-                } else { // Si el Logging se hizo satisfactoriamente
-
-                    // logica de la continuacion del logging
-                    frame.setVisible(false); // Oculta la ventana de login
+                } else {
+                    dialog.setVisible(false); // Cierra el diálogo
+                    dialog.dispose();
                 }
             }
         });
 
-
-        // Registrar usuario
         registrarButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
-                // Guardamos usuario y contraseña
                 usuario = CUsuario.getText();
                 contrasenha = new String(passwordField1.getPassword());
 
-                // Comprobamos si existe el usuario en la base de datos del servidor
-                // Si el usuario ya existe en la base de datos sacamos una ventana emergente
                 if (!controller.registrarse(usuario, contrasenha)) {
-                    JOptionPane.showMessageDialog(null, "El usuario ya existe.", "Error de registro", JOptionPane.ERROR_MESSAGE);
-
-                    // Borrar el contenido de los campos
+                    JOptionPane.showMessageDialog(dialog, "El usuario ya existe.", "Error de registro", JOptionPane.ERROR_MESSAGE);
                     CUsuario.setText("");
                     passwordField1.setText("");
-                } else { // Si el registro se hizo correctamente
-                    // Logica de la continuacion del registro
-                }
+                } else {
+                    dialog.setVisible(false); // Cierra el diálogo
+                    dialog.dispose();                }
             }
         });
 
-        // Configurar el cierre de la ventana
-        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
 
-        // Agregar el panel de GUILogin a la ventana
-        frame.getContentPane().add(panel1);
-
-        // Configurar el tamaño de la ventana
-        frame.pack();
-
-        // Hacer visible la ventana
-        frame.setVisible(true);
+        dialog.getContentPane().add(panel1);
+        dialog.pack();
+        dialog.setVisible(true);
     }
 
 }

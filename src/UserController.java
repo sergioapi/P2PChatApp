@@ -1,3 +1,6 @@
+import java.net.MalformedURLException;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
 public class UserController {
@@ -80,6 +83,37 @@ public class UserController {
         }
         return false;
 
+    }
+
+    public boolean iniciarChat(String usuario) {
+        Usuario amigo = user.getAmigo(usuario);
+        if (amigo != null) {
+            if (amigo.isConectado()) {
+                try {
+                    amigo.setMensajero((MensajeroInterface) Naming.lookup(amigo.getRemoteURL()));
+                } catch (NotBoundException | RemoteException | MalformedURLException e) {
+                    System.out.println(e.getMessage());
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean enviarMensaje(String usuario, String mensaje) {
+        Usuario amigo = user.getAmigo(usuario);
+        if (amigo != null) {
+            if (amigo.isConectado()) {
+                try {
+                    if (!amigo.chatIniciado())
+                        iniciarChat(usuario);
+                    amigo.recibirMensaje(mensaje);
+                    return true;
+                } catch (RemoteException e) {
+                    System.out.println(e.getMessage());
+                }
+            }
+        }
+        return false;
     }
 
     public String getNombreUsuario() {
