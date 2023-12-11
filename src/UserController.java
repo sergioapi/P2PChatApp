@@ -20,10 +20,11 @@ public class UserController {
     }
 
     public boolean iniciarSesion(String usuario, String contrasena) {
+        System.out.println("inicio de sesion para " + usuario);
         try {
             user = server.iniciarSesion(client, usuario, contrasena);
         } catch (RemoteException e) {
-            System.out.println();
+            System.out.println(e.getMessage());
         }
         return user != null;
     }
@@ -33,6 +34,7 @@ public class UserController {
             server.cerrarSesion(user);
             return true;
         } catch (RemoteException e) {
+            System.out.println(e.getMessage());
             return false;
         }
     }
@@ -42,6 +44,7 @@ public class UserController {
             server.eliminarUsuario(user, contrasena);
             return true;
         } catch (RemoteException e) {
+            System.out.println(e.getMessage());
             return false;
         }
     }
@@ -114,6 +117,10 @@ public class UserController {
             }
         }
         return false;
+    }
+
+    public String getURL() {
+        return user.getRemoteURL();
     }
 
     public String getNombreUsuario() {

@@ -19,6 +19,8 @@ public class GUILogin {
     private int intentos = 3;
 
     public GUILogin(UserController controller) {
+        System.out.println("Abriendo la interfaz de login");
+
         dialog = new JDialog();
         dialog.setTitle("P2P - ChatApp");
         dialog.setModal(true); // Hace que el diálogo sea modal
@@ -30,6 +32,7 @@ public class GUILogin {
                 contrasenha = new String(passwordField1.getPassword());
 
                 if (!controller.iniciarSesion(usuario, contrasenha)) {
+                    System.out.println("Inicio de sesión incorrecto");
                     intentos--;
                     if (intentos > 0) {
                         JOptionPane.showMessageDialog(dialog, "Usuario no encontrado o contraseña incorrecta. Intentos restantes: " + intentos, "Error de inicio de sesión", JOptionPane.ERROR_MESSAGE);
@@ -58,7 +61,8 @@ public class GUILogin {
                     passwordField1.setText("");
                 } else {
                     dialog.setVisible(false); // Cierra el diálogo
-                    dialog.dispose();                }
+                    dialog.dispose();
+                }
             }
         });
 

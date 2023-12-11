@@ -13,7 +13,6 @@ public class MainApp {
 
     private static MensajeroImpl exportedObj;
 
-
     // Tener dos interfaces: una del server para recibir cuando se conecta alguien y poder enviar solicitudes de amistad
     // y obtener el objeto remoto de un cliente
     // otra interfaz para enviar y recibir mensajes entre clientes (P2P) => hacer de esta clase otro servidor, colgando
@@ -42,6 +41,7 @@ public class MainApp {
 // Creo el cliente para recibir Callbacks
         try {
             remoto = new CallbackClientImpl();
+            System.out.println("cliente de callback creado");
         } catch (RemoteException ex) {
             System.out.println("Error al crear cliente: " + ex.getMessage());
             System.exit(0);
@@ -49,18 +49,18 @@ public class MainApp {
 
         UserController controller = new UserController(server, remoto);
         GUILogin login = new GUILogin(controller);
-
-
+        System.out.println("Cambio de ventana");
         try {
-            String urlRegistro = "rmi://localhost:1099/" + controller.getNombreUsuario();
+            String urlRegistro = controller.getURL();
+            System.out.println(urlRegistro);
             registrarObjRemoto();
             exportedObj = new MensajeroImpl();
             Naming.rebind(urlRegistro, exportedObj);
             //listRegistry(urlRegistro);
+            System.out.println("Objeto remoto del cliente exportado");
             GUIChat chat = new GUIChat(controller);
         } catch (RemoteException e) {
             System.out.println(e.getMessage());
-
         } catch (MalformedURLException e) {
             System.out.println(e.getMessage());
         }
@@ -71,6 +71,7 @@ public class MainApp {
         try {
             registry = LocateRegistry.getRegistry(RMIPORT);
             registry.list();
+            System.out.println("Objeto remoto registrado");
         } catch (RemoteException e) {
             System.out.println("RMI registry cannot be located at port " + RMIPORT);
             registry = LocateRegistry.createRegistry(RMIPORT);

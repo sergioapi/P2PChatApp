@@ -1,6 +1,6 @@
+import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.io.Serializable;
 
 public class Usuario implements Serializable {
 
@@ -11,22 +11,40 @@ public class Usuario implements Serializable {
     ArrayList<Usuario> amigosConectados;
     ArrayList<String> solicitudesPendientes;
     boolean conectado;
-
+    private final static String URL = "rmi://localhost:1099/";
     MensajeroInterface mensajero;
 
-    public Usuario(CallbackClientInterface cliente, String username, String remoteURL, ArrayList<String> amigos, ArrayList<Usuario> amigosConectados, ArrayList<String> solicitudesPendientes) {
+    public Usuario(CallbackClientInterface cliente, String username, ArrayList<String> amigos, ArrayList<Usuario> amigosConectados, ArrayList<String> solicitudesPendientes, boolean conectado) {
         this.cliente = cliente;
         this.username = username;
-        this.remoteURL = remoteURL;
+        this.remoteURL = URL + username;
         this.amigos = amigos;
         this.amigosConectados = amigosConectados;
         this.solicitudesPendientes = solicitudesPendientes;
     }
 
-    public Usuario(CallbackClientInterface cliente, String username, String remoteURL) {
+    public Usuario(CallbackClientInterface cliente, String username, ArrayList<String> amigos, ArrayList<Usuario> amigosConectados, ArrayList<String> solicitudesPendientes) {
         this.cliente = cliente;
         this.username = username;
-        this.remoteURL = remoteURL;
+        this.remoteURL = URL + username;
+        this.amigos = amigos;
+        this.amigosConectados = amigosConectados;
+        this.solicitudesPendientes = solicitudesPendientes;
+        conectado = true;
+    }
+
+    public Usuario(CallbackClientInterface cliente, String username, boolean conectado) {
+        this.cliente = cliente;
+        this.username = username;
+        this.remoteURL = URL + username;
+        this.conectado = conectado;
+    }
+
+    public Usuario(CallbackClientInterface cliente, String username) {
+        this.cliente = cliente;
+        this.username = username;
+        this.remoteURL = URL + username;
+        conectado = true;
     }
 
     public Usuario(String username, boolean conectado) {
@@ -140,5 +158,9 @@ public class Usuario implements Serializable {
 
     public boolean chatIniciado() {
         return mensajero != null;
+    }
+
+    public void desconectar() {
+        conectado = false;
     }
 }
