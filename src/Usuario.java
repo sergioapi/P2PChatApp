@@ -4,26 +4,48 @@ import java.util.ArrayList;
 
 public class Usuario implements Serializable {
 
+    // Interfaz de cliente para los callbacks
     CallbackClientInterface cliente;
+
+    // Nombre de usuario
     String username;
+
+    // URL remota del usuario para RMI
     String remoteURL;
+
+    // Lista de amigos del usuario
     ArrayList<String> amigos;
+
+    // Lista de amigos conectados (usuarios)
     ArrayList<Usuario> amigosConectados;
+
+    // Lista de solicitudes pendientes de amistad
     ArrayList<String> solicitudesPendientes;
+
+    // Estado de conexión del usuario
     boolean conectado;
+
+    // URL base para la creación de la URL remota
     private final static String URL = "rmi://localhost:1099/";
+
+    // Interfaz de mensajería del usuario
     MensajeroInterface mensajero;
 
-    public Usuario(CallbackClientInterface cliente, String username, ArrayList<String> amigos, ArrayList<Usuario> amigosConectados, ArrayList<String> solicitudesPendientes, boolean conectado) {
+    // Constructores para diferentes situaciones
+
+    public Usuario(CallbackClientInterface cliente, String username, ArrayList<String> amigos,
+                   ArrayList<Usuario> amigosConectados, ArrayList<String> solicitudesPendientes, boolean conectado) {
         this.cliente = cliente;
         this.username = username;
         this.remoteURL = URL + username;
         this.amigos = amigos;
         this.amigosConectados = amigosConectados;
         this.solicitudesPendientes = solicitudesPendientes;
+        this.conectado = conectado;
     }
 
-    public Usuario(CallbackClientInterface cliente, String username, ArrayList<String> amigos, ArrayList<Usuario> amigosConectados, ArrayList<String> solicitudesPendientes) {
+    public Usuario(CallbackClientInterface cliente, String username, ArrayList<String> amigos,
+                   ArrayList<Usuario> amigosConectados, ArrayList<String> solicitudesPendientes) {
         this.cliente = cliente;
         this.username = username;
         this.remoteURL = URL + username;
@@ -51,6 +73,8 @@ public class Usuario implements Serializable {
         this.username = username;
         this.conectado = conectado;
     }
+
+    // Métodos de acceso y modificación
 
     public CallbackClientInterface getCliente() {
         return cliente;
@@ -92,6 +116,8 @@ public class Usuario implements Serializable {
         this.amigosConectados = amigosConectados;
     }
 
+    // Métodos para gestionar la lista de amigos
+
     public void anadirAmigo(Usuario usuario) {
         amigos.add(usuario.getUsername());
         amigosConectados.add(usuario);
@@ -104,10 +130,11 @@ public class Usuario implements Serializable {
     public void eliminarAmigo(String usuario) {
         amigos.remove(usuario);
         for (Usuario amigo : amigosConectados) {
-            if (amigo.getUsername().equals(usuario))
-                amigosConectados.remove(amigo);
+            if (amigo.getUsername().equals(usuario)) amigosConectados.remove(amigo);
         }
     }
+
+    // Métodos para gestionar la lista de solicitudes pendientes
 
     public void anadirSolicitud(String username) {
         solicitudesPendientes.add(username);
@@ -125,6 +152,8 @@ public class Usuario implements Serializable {
         this.solicitudesPendientes = solicitudesPendientes;
     }
 
+    // Obtener un usuario amigo por su nombre de usuario
+
     public Usuario getAmigo(String username) {
         Usuario usuario = null;
         for (Usuario amigo : amigosConectados) {
@@ -133,12 +162,13 @@ public class Usuario implements Serializable {
                 break;
             }
         }
-        if (usuario == null)
-            if (amigos.contains(username)) {
-                usuario = new Usuario(username, false);
-            }
+        if (usuario == null) if (amigos.contains(username)) {
+            usuario = new Usuario(username, false);
+        }
         return usuario;
     }
+
+    // Métodos para verificar y gestionar el estado de conexión
 
     public boolean isConectado() {
         return conectado;
@@ -164,3 +194,4 @@ public class Usuario implements Serializable {
         conectado = false;
     }
 }
+

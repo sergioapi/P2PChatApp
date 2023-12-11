@@ -1,18 +1,32 @@
-import java.rmi.*;
-import java.rmi.server.*;
-public class CallbackClientImpl extends UnicastRemoteObject
-        implements CallbackClientInterface{
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
+
+/**
+ * Sócrates Agudo Torrado
+ * Sergio Álvarez Piñón
+ */
+// Clase CallbackClientImpl:
+// Implementación de la interfaz CallbackClientInterface que define los métodos para recibir notificaciones de conexión y desconexión de amigos.
+
+public class CallbackClientImpl extends UnicastRemoteObject implements CallbackClientInterface {
+
+
     public CallbackClientImpl() throws RemoteException {
-        super( );
+        super();
     }
 
     @Override
     public void amigoConectado(Usuario usuario) throws RemoteException {
-
+        // Método llamado cuando un amigo se conecta.
+        // Aquí se puede implementar la lógica necesaria para manejar la notificación de conexión de un amigo.
+        // Por ejemplo, actualizar la interfaz gráfica para reflejar el estado de conexión del amigo.
     }
 
     @Override
     public void amigoDesconectado(Usuario usuario) throws RemoteException {
-
+        // Método llamado cuando un amigo se desconecta.
+        // Aquí se puede implementar la lógica necesaria para manejar la notificación de desconexión de un amigo.
+        // Por ejemplo, actualizar la interfaz gráfica para reflejar el estado de desconexión del amigo.
     }
 }
+
