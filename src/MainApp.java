@@ -52,6 +52,17 @@ public class MainApp {
         GUILogin login = new GUILogin(controller);
 
 
+
+        // Esperar a que el diálogo de inicio de sesión se cierre
+        while (login.isDialogVisible()) {
+            try {
+                Thread.sleep(100); // Espera activa, ajustar según sea necesario
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // Continuar con el programa después de que el diálogo de inicio de sesión se cierre
         System.out.println("Cambio de ventana");
         try {
             String urlRegistro = controller.getURL();

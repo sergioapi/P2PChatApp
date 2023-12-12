@@ -60,6 +60,9 @@ public class Usuario implements Serializable {
         this.username = username;
         this.remoteURL = URL + username;
         this.conectado = conectado;
+        this.amigos = new ArrayList<>();
+        this.amigosConectados = new ArrayList<>();
+        this.solicitudesPendientes = new ArrayList<>();
     }
 
     public Usuario(CallbackClientInterface cliente, String username) {
@@ -67,11 +70,17 @@ public class Usuario implements Serializable {
         this.username = username;
         this.remoteURL = URL + username;
         conectado = true;
+        this.amigos = new ArrayList<>();
+        this.amigosConectados = new ArrayList<>();
+        this.solicitudesPendientes = new ArrayList<>();
     }
 
     public Usuario(String username, boolean conectado) {
         this.username = username;
         this.conectado = conectado;
+        this.amigos = new ArrayList<>();
+        this.amigosConectados = new ArrayList<>();
+        this.solicitudesPendientes = new ArrayList<>();
     }
 
     // Métodos de acceso y modificación

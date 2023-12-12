@@ -2,6 +2,8 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.rmi.RemoteException;
+import java.awt.event.*;
+
 
 public class GUILogin {
     private JDialog dialog;
@@ -66,11 +68,26 @@ public class GUILogin {
             }
         });
 
-        dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+        // Agregar WindowListener para el control del cierre de la APP
+        dialog.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                System.exit(0); // Cierra toda la aplicación
+            }
+        });
+
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
         dialog.getContentPane().add(panel1);
         dialog.pack();
         dialog.setVisible(true);
     }
+
+    public boolean isDialogVisible() {
+        return dialog.isVisible();
+    }
+
+
+
 
 }

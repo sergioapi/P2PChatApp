@@ -3,10 +3,12 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.awt.event.*;
+
 
 public class GUIChat {
     private JFrame frame;
@@ -21,11 +23,13 @@ public class GUIChat {
     private JList<String> nombresList;
     private JMenuBar menuBar;
     private JPanel mainPanel;
+    private JPanel panelListaSolicitudes;
 
-    public GUIChat(UserController controller) {
+
+    public GUIChat(UserController controller) throws RemoteException {
         nombres = new ArrayList<>();
 
-        frame = new JFrame("P2P ChatApp");
+        frame = new JFrame("P2P ChatApp - " + controller.getNombreUsuario());
         chatArea = new JTextArea("¡Selecciona un chat para empezar a hablar!");
         chatArea.setEditable(false);
         inputField = new JTextField(20);
@@ -58,13 +62,20 @@ public class GUIChat {
 
         mainPanel = new JPanel(new CardLayout());
         mainPanel.add(splitPane, "ChatPanel");
-        mainPanel.add(createListaNombresPanel(), "ListaNombresPanel");
-        mainPanel.add(createAmigosPanel(), "AmigosPanel");
+        mainPanel.add(createListaSolicitudes(controller), "ListaNombresPanel");
+        mainPanel.add(createAmigosPanel(controller), "AmigosPanel");
 
         frame.getContentPane().add(mainPanel, BorderLayout.CENTER);
 
         chatMenuItem.addActionListener(e -> cambiarVista("ChatPanel"));
-        listaNombresMenuItem.addActionListener(e -> cambiarVista("ListaNombresPanel"));
+        listaNombresMenuItem.addActionListener(e -> {
+            try {
+                actualizarListaSolicitudes(controller);
+                cambiarVista("ListaNombresPanel");
+            } catch (RemoteException ex) {
+                ex.printStackTrace();
+            }
+        });
         amigosMenuItem.addActionListener(e -> cambiarVista("AmigosPanel"));
 
         // Agregar un apartado para enviar solicitud de amistad
@@ -72,13 +83,7 @@ public class GUIChat {
         listaNombresMenu.add(enviarSolicitudAmistadItem);
         enviarSolicitudAmistadItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                // Mostrar un cuadro de diálogo para ingresar el nombre
-                String nombreIngresado = JOptionPane.showInputDialog(frame, "Ingresa el nombre para la solicitud de amistad:");
-                if (nombreIngresado != null && !nombreIngresado.trim().isEmpty()) {
-                    String nombreSolicitado = nombreIngresado.trim();
-                    // Lógica adicional con el nombre ingresado
-                    controller.pedirAmistad(nombreIngresado);
-                }
+                pedirAmistad(controller);
             }
         });
 
@@ -169,19 +174,26 @@ public class GUIChat {
     }
 
     private void cambiarVista(String nombreVista) {
-        CardLayout cl = (CardLayout)(mainPanel.getLayout());
+        CardLayout cl = (CardLayout) (mainPanel.getLayout());
         cl.show(mainPanel, nombreVista);
     }
 
-    private JPanel createListaNombresPanel() {
-        // Panel que contendrá todos los nombres
-        JPanel listaNombresPanel = new JPanel();
-        listaNombresPanel.setLayout(new BoxLayout(listaNombresPanel, BoxLayout.Y_AXIS));
+    private JPanel createListaSolicitudes(UserController controller) throws RemoteException {
+        panelListaSolicitudes = new JPanel();
+        panelListaSolicitudes.setLayout(new BoxLayout(panelListaSolicitudes, BoxLayout.Y_AXIS));
 
-        // Nombres a mostrar
-        String[] nombres = new String[]{};
+        actualizarListaSolicitudes(controller);
 
-        // Crear un panel para cada nombre
+        return panelListaSolicitudes;
+    }
+
+    private void actualizarListaSolicitudes(UserController controller) throws RemoteException {
+        panelListaSolicitudes.removeAll(); // Elimina todos los componentes actuales
+
+        // Obtener las solicitudes pendientes de amistad
+        ArrayList<String> nombres = controller.getServer().obtenerSolicitudes(controller.getNombreUsuario());
+
+        // Crear un panel para cada nombre en la lista de solicitudes
         for (String nombre : nombres) {
             JPanel nombrePanel = new JPanel(new FlowLayout());
             JLabel nombreLabel = new JLabel(nombre);
@@ -189,40 +201,82 @@ public class GUIChat {
             JButton rechazarButton = new JButton("Rechazar");
 
             aceptarButton.addActionListener(e -> {
-                // Remueve el panel del nombre al presionar "Aceptar"
-                listaNombresPanel.remove(nombrePanel);
-                listaNombresPanel.revalidate();
-                listaNombresPanel.repaint();
+                try {
+                    // Aceptar la solicitud de amistad y actualizar la lista
+                    controller.getServer().aceptarAmistad(controller.getUser(), nombre);
+                    actualizarListaSolicitudes(controller);
+                } catch (RemoteException ex) {
+                    ex.printStackTrace();
+                }
             });
 
             rechazarButton.addActionListener(e -> {
-                // Remueve el panel del nombre al presionar "Rechazar"
-                listaNombresPanel.remove(nombrePanel);
-                listaNombresPanel.revalidate();
-                listaNombresPanel.repaint();
+                // Rechazar la solicitud de amistad y actualizar la lista
+                try {
+                    controller.getServer().rechazarAmistad(controller.getNombreUsuario(), nombre);
+                } catch (RemoteException ex) {
+                    throw new RuntimeException(ex);
+                }
+                try {
+                    actualizarListaSolicitudes(controller);
+                } catch (RemoteException ex) {
+                    ex.printStackTrace();
+                }
             });
 
+            // Añadir los componentes al panel de nombre
             nombrePanel.add(nombreLabel);
             nombrePanel.add(aceptarButton);
             nombrePanel.add(rechazarButton);
-            listaNombresPanel.add(nombrePanel);
+
+            // Añadir el panel de nombre al panel de lista de solicitudes
+            panelListaSolicitudes.add(nombrePanel);
         }
 
-        JScrollPane scrollPane = new JScrollPane(listaNombresPanel);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-
-        JPanel panelConScroll = new JPanel(new BorderLayout());
-        panelConScroll.add(scrollPane, BorderLayout.CENTER);
-        return panelConScroll;
+        // Actualizar y refrescar el panel de lista de solicitudes
+        panelListaSolicitudes.revalidate();
+        panelListaSolicitudes.repaint();
     }
 
     // Método para crear el panel de amigos
-    private JPanel createAmigosPanel() {
+    private JPanel createAmigosPanel(UserController controller) throws RemoteException {
         JPanel amigosPanel = new JPanel();
         amigosPanel.setLayout(new BorderLayout());
-        JLabel label = new JLabel("Lista de Amigos", JLabel.CENTER);
-        amigosPanel.add(label, BorderLayout.CENTER);
+
+        // Obtiene la lista de amigos del usuario
+        ArrayList<String> amigos = controller.getServer().obtenerAmistades(controller.getNombreUsuario());
+
+        if (amigos != null && !amigos.isEmpty()) {
+            // Crea un modelo para la lista de amigos
+            DefaultListModel<String> listModel = new DefaultListModel<>();
+            for (String amigo : amigos) {
+                listModel.addElement(amigo);
+            }
+
+            // Crea una JList con el modelo y agrégala al panel
+            JList<String> listaAmigos = new JList<>(listModel);
+            JScrollPane scrollPane = new JScrollPane(listaAmigos);
+            amigosPanel.add(scrollPane, BorderLayout.CENTER);
+        } else {
+            // Muestra un mensaje si no hay amigos
+            JLabel label = new JLabel("No hay amigos en la lista", JLabel.CENTER);
+            amigosPanel.add(label, BorderLayout.CENTER);
+        }
 
         return amigosPanel;
+    }
+
+
+    // Método para pedir amistad
+    private boolean pedirAmistad(UserController controller) {
+        // Mostrar un cuadro de diálogo para ingresar el nombre
+        String nombreIngresado = JOptionPane.showInputDialog(frame, "Ingresa el nombre para la solicitud de amistad:");
+        if (nombreIngresado != null && !nombreIngresado.trim().isEmpty()) {
+            // Lógica adicional con el nombre ingresado
+            controller.pedirAmistad(nombreIngresado);
+            return true;
+        } else {
+            return false;
+        }
     }
 }

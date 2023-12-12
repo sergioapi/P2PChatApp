@@ -219,4 +219,12 @@ public class UserController {
 
         return null;
     }
+
+    public CallbackServerInterface getServer() {
+        return server;
+    }
+
+    public Usuario getUser() {
+        return user;
+    }
 }
