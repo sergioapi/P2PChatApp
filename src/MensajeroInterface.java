@@ -15,7 +15,7 @@ public interface MensajeroInterface extends Remote {
     // Método remoto para recibir mensajes.
     // Puede lanzar una excepción RemoteException para manejar errores
     // relacionados con la comunicación remota.
-    public String recibirMsj(String msj) throws java.rmi.RemoteException;
+    public String recibirMsj(String msj, String sender) throws java.rmi.RemoteException;
 
 }
 

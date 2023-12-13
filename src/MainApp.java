@@ -20,6 +20,8 @@ public class MainApp {
     public static String REGISTRY_URL = "rmi://" + HOSTNAME + ":" + RMIPORT + "/callback";
     private static MensajeroImpl exportedObj;
 
+    private static UserController controller;
+
     public static void main(String[] args) {
         CallbackServerInterface server = null;
         CallbackClientInterface remoto = null;
@@ -48,10 +50,8 @@ public class MainApp {
             System.exit(0);
         }
 
-        UserController controller = new UserController(server, remoto);
+        UserController controller = new UserController(server, (CallbackClientImpl) remoto);
         GUILogin login = new GUILogin(controller);
-
-
 
         // Esperar a que el diálogo de inicio de sesión se cierre
         while (login.isDialogVisible()) {
@@ -68,10 +68,11 @@ public class MainApp {
             String urlRegistro = controller.getURL();
             System.out.println(urlRegistro);
             registrarObjRemoto();
-            exportedObj = new MensajeroImpl();
+            exportedObj = new MensajeroImpl(controller);
             Naming.rebind(urlRegistro, exportedObj);
             System.out.println("Objeto remoto del cliente exportado");
             GUIChat chat = new GUIChat(controller);
+            //controller.setvChat(chat);
         } catch (RemoteException e) {
             System.out.println(e.getMessage());
         } catch (MalformedURLException e) {

@@ -12,15 +12,19 @@ import java.rmi.server.UnicastRemoteObject;
 // devuelve el mensaje recibido.
 
 public class MensajeroImpl extends UnicastRemoteObject implements MensajeroInterface {
+    private UserController controller;
 
     // Constructor de la clase
-    public MensajeroImpl() throws RemoteException {
+    public MensajeroImpl(UserController controller) throws RemoteException {
         super();
+        this.controller = controller;
     }
 
     // Método para recibir mensajes
-    public String recibirMsj(String msj) {
+    public String recibirMsj(String msj, String sender) {
+        System.out.println("Mensaje de " + sender + ": " + msj);
         // Retorna el mensaje recibido tal como está
+        controller.actualizarMensajes(sender, msj);
         return msj;
     }
 }

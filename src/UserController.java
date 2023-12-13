@@ -16,21 +16,25 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 
 public class UserController {
     // Interfaz del servidor RMI
     private CallbackServerInterface server;
 
     // Interfaz del cliente para callbacks
-    private CallbackClientInterface client;
+    private CallbackClientImpl client;
 
     // Objeto Usuario actual
     private Usuario user;
 
+    private GUIChat vChat;
+
     // Constructor que recibe las interfaces del servidor y del cliente
-    public UserController(CallbackServerInterface server, CallbackClientInterface client) {
+    public UserController(CallbackServerInterface server, CallbackClientImpl client) {
         this.server = server;
         this.client = client;
+        client.setController(this);
     }
 
     // Método para registrar un nuevo usuario
@@ -52,6 +56,7 @@ public class UserController {
             String passwdHash = hashPassword(contrasena);
             user = server.iniciarSesion(client, usuario, passwdHash);
             System.out.println("Inicio de sesion exitoso");
+            System.out.println("Amigos de " + user.getUsername() + ": " + user.getAmigos());
             return true;
         } catch (RemoteException e) {
             System.out.println("Error al inicar sesion: " + e.getMessage());
@@ -105,8 +110,7 @@ public class UserController {
             System.out.println("Amistad aceptada");
             if (nuevoAmigo != null) {
                 user.eliminarSolicitud(username);
-                if (nuevoAmigo.isConectado())
-                    user.anadirAmigo(nuevoAmigo);
+                if (nuevoAmigo.isConectado()) user.anadirAmigo(nuevoAmigo);
                 else user.anadirAmigo(username);
 
             }
@@ -145,6 +149,16 @@ public class UserController {
         return false;
     }
 
+    public ArrayList<String> obtenerSolicitudesPendientes() {
+        //ArrayList<String> solicitudes = new ArrayList<>();
+        try {
+            return server.obtenerSolicitudes(user.getUsername());
+        } catch (RemoteException e) {
+            System.out.println("Error al obtener las solicitudes de amistad de " + user.getUsername() + ": " + e.getMessage());
+            return null;
+        }
+    }
+
     // Método para iniciar un chat con un amigo
     public boolean iniciarChat(String usuario) {
         Usuario amigo = user.getAmigo(usuario);
@@ -167,9 +181,9 @@ public class UserController {
         if (amigo != null) {
             if (amigo.isConectado()) {
                 try {
-                    if (!amigo.chatIniciado())
-                        iniciarChat(usuario);
-                    amigo.recibirMensaje(mensaje);
+                    if (!amigo.chatIniciado()) iniciarChat(usuario);
+                    System.out.println("Mensaje de " + usuario + ": " + mensaje);
+                    amigo.recibirMensaje(mensaje, usuario);
                     System.out.println("Mensaje enviado correctamente");
                     return true;
                 } catch (RemoteException e) {
@@ -197,8 +211,7 @@ public class UserController {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
 
             // Convierte la contraseña en bytes y aplica el hash
-            byte[] encodedhash = digest.digest(
-                    password.getBytes(StandardCharsets.UTF_8));
+            byte[] encodedhash = digest.digest(password.getBytes(StandardCharsets.UTF_8));
 
             // Convierte el hash en una representación hexadecimal
             StringBuilder hexString = new StringBuilder(2 * encodedhash.length);
@@ -226,5 +239,26 @@ public class UserController {
 
     public Usuario getUser() {
         return user;
+    }
+
+    public void setvChat(GUIChat vChat) {
+        this.vChat = vChat;
+    }
+
+    public void actualizarMensajes(String mensaje, String sender) {
+        vChat.actualizarMensajes(mensaje, sender);
+    }
+
+    public void actualizarAmigosConectados(Usuario amigo, boolean conexion) {
+        if (conexion) {
+            user.anadirAmigoConectado(amigo);
+        } else user.amigoDesconectado(amigo);
+        vChat.actualizarListaAmigos();
+    }
+
+    public void actualizarAmigos(Usuario amigo, boolean amistad) {
+        if (amistad)
+
+            vChat.actualizarListaAmigos();
     }
 }

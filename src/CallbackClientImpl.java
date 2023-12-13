@@ -10,6 +10,7 @@ import java.rmi.server.UnicastRemoteObject;
 
 public class CallbackClientImpl extends UnicastRemoteObject implements CallbackClientInterface {
 
+    private UserController controller;
 
     public CallbackClientImpl() throws RemoteException {
         super();
@@ -20,6 +21,9 @@ public class CallbackClientImpl extends UnicastRemoteObject implements CallbackC
         // Método llamado cuando un amigo se conecta.
         // Aquí se puede implementar la lógica necesaria para manejar la notificación de conexión de un amigo.
         // Por ejemplo, actualizar la interfaz gráfica para reflejar el estado de conexión del amigo.
+        if (controller != null) {
+            controller.actualizarAmigosConectados(usuario, true);
+        }
     }
 
     @Override
@@ -27,6 +31,28 @@ public class CallbackClientImpl extends UnicastRemoteObject implements CallbackC
         // Método llamado cuando un amigo se desconecta.
         // Aquí se puede implementar la lógica necesaria para manejar la notificación de desconexión de un amigo.
         // Por ejemplo, actualizar la interfaz gráfica para reflejar el estado de desconexión del amigo.
+        if (controller != null) {
+            controller.actualizarAmigosConectados(usuario, false);
+        }
+    }
+
+    @Override
+    public void nuevoAmigo(Usuario usuario) throws RemoteException {
+        if (controller != null) {
+            controller.actualizarAmigos(usuario, true);
+        }
+    }
+
+    @Override
+    public void amigoBorrado(Usuario usuario) throws RemoteException {
+        if (controller != null) {
+            controller.actualizarAmigos(usuario, false);
+        }
+    }
+
+    public void setController(UserController controller) {
+        if (controller != null)
+            this.controller = controller;
     }
 }
 

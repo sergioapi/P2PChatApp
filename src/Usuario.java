@@ -33,8 +33,7 @@ public class Usuario implements Serializable {
 
     // Constructores para diferentes situaciones
 
-    public Usuario(CallbackClientInterface cliente, String username, ArrayList<String> amigos,
-                   ArrayList<Usuario> amigosConectados, ArrayList<String> solicitudesPendientes, boolean conectado) {
+    public Usuario(CallbackClientInterface cliente, String username, ArrayList<String> amigos, ArrayList<Usuario> amigosConectados, ArrayList<String> solicitudesPendientes, boolean conectado) {
         this.cliente = cliente;
         this.username = username;
         this.remoteURL = URL + username;
@@ -44,8 +43,7 @@ public class Usuario implements Serializable {
         this.conectado = conectado;
     }
 
-    public Usuario(CallbackClientInterface cliente, String username, ArrayList<String> amigos,
-                   ArrayList<Usuario> amigosConectados, ArrayList<String> solicitudesPendientes) {
+    public Usuario(CallbackClientInterface cliente, String username, ArrayList<String> amigos, ArrayList<Usuario> amigosConectados, ArrayList<String> solicitudesPendientes) {
         this.cliente = cliente;
         this.username = username;
         this.remoteURL = URL + username;
@@ -127,6 +125,14 @@ public class Usuario implements Serializable {
 
     // Métodos para gestionar la lista de amigos
 
+    public void anadirAmigoConectado(Usuario amigo) {
+        if (amigo != null) if (amigos.contains(amigo.getUsername())) amigosConectados.add(amigo);
+    }
+
+    public void amigoDesconectado(Usuario amigo) {
+        if (amigo != null) amigosConectados.remove(amigo);
+    }
+
     public void anadirAmigo(Usuario usuario) {
         amigos.add(usuario.getUsername());
         amigosConectados.add(usuario);
@@ -183,8 +189,8 @@ public class Usuario implements Serializable {
         return conectado;
     }
 
-    public void recibirMensaje(String mensaje) throws RemoteException {
-        mensajero.recibirMsj(mensaje);
+    public void recibirMensaje(String mensaje, String amigo) throws RemoteException {
+        mensajero.recibirMsj(mensaje, amigo);
     }
 
     public MensajeroInterface getMensajero() {
