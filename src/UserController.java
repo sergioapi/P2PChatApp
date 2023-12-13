@@ -33,6 +33,7 @@ public class UserController {
 
     // Constructor que recibe las interfaces del servidor y del cliente
     public UserController(CallbackServerInterface server, CallbackClientImpl client) {
+        this.user = null;
         this.server = server;
         this.client = client;
         client.setController(this);
@@ -56,8 +57,15 @@ public class UserController {
         try {
             this.contrasena = hashPassword(contrasena);
             user = server.iniciarSesion(client, usuario, this.contrasena);
-            System.out.println("Inicio de sesion exitoso");
-            System.out.println("Amigos de " + user.getUsername() + ": " + user.getAmigos());
+            if (user != null) {
+                System.out.println("Inicio de sesion exitoso");
+                System.out.println("Amigos de " + user.getUsername() + ": " + user.getAmigos());
+                for (Usuario conectado : user.getAmigosConectados())
+                    System.out.println("Amigos conectados de " + user.getUsername() + ": " + conectado.getUsername());
+            } else {
+                System.out.println("Error al iniciar sesión");
+                return false;
+            }
             return true;
         } catch (RemoteException e) {
             System.out.println("Error al inicar sesion: " + e.getMessage());
@@ -111,8 +119,10 @@ public class UserController {
             System.out.println("Amistad aceptada");
             if (nuevoAmigo != null) {
                 user.eliminarSolicitud(username);
-                if (nuevoAmigo.isConectado()) user.anadirAmigo(nuevoAmigo);
-                else user.anadirAmigo(username);
+                if (nuevoAmigo.isConectado()) {
+                    user.anadirAmigo(nuevoAmigo);
+                    vChat.actualizarListaNombres(this);
+                } else user.anadirAmigo(username);
 
             }
         } catch (RemoteException e) {
@@ -141,6 +151,7 @@ public class UserController {
         try {
             if (server.eliminarAmigo(user, usuario, this.contrasena)) {
                 user.eliminarAmigo(usuario);
+                vChat.actualizarListaNombres(this);
                 System.out.println("se ha eliminado correctamente al amigo");
                 return true;
             }
@@ -253,14 +264,18 @@ public class UserController {
     public void actualizarAmigosConectados(Usuario amigo, boolean conexion) {
         if (conexion) {
             user.anadirAmigoConectado(amigo);
-        } else user.amigoDesconectado(amigo);
-        vChat.actualizarListaAmigos();
+        } else {
+            System.out.println("Quitando de amigos conectados a: " + amigo.getUsername());
+            user.amigoDesconectado(amigo);
+        }
+        vChat.actualizarListaNombres(this);
     }
 
     public void actualizarAmigos(Usuario amigo, boolean amistad) {
         if (amistad)
-
-            vChat.actualizarListaAmigos();
+            user.anadirAmigo(amigo);
+        else user.eliminarAmigo(amigo.getUsername());
+        vChat.actualizarListaNombres(this);
     }
 
     public void setMensajero(MensajeroInterface mensajero) {

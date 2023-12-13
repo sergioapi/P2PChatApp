@@ -1,6 +1,7 @@
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class Usuario implements Serializable {
 
@@ -130,12 +131,21 @@ public class Usuario implements Serializable {
     }
 
     public void amigoDesconectado(Usuario amigo) {
-        if (amigo != null) amigosConectados.remove(amigo);
+        System.out.println("Amigos conectados de " + username);
+        for (Usuario conectado : amigosConectados) {
+            System.out.println(conectado.getUsername() + " esta conectado");
+        }
+        System.out.println("Vamos a quitar a " + amigo.getUsername());
+        amigosConectados.remove(amigo);
+        for (Usuario conectado : amigosConectados) {
+            System.out.println(conectado.getUsername() + " esta conectado");
+        }
     }
 
     public void anadirAmigo(Usuario usuario) {
         amigos.add(usuario.getUsername());
-        amigosConectados.add(usuario);
+        if (usuario.isConectado())
+            amigosConectados.add(usuario);
     }
 
     public void anadirAmigo(String username) {
@@ -207,6 +217,19 @@ public class Usuario implements Serializable {
 
     public void desconectar() {
         conectado = false;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Usuario usuario = (Usuario) o;
+        return Objects.equals(username, usuario.getUsername());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(username);
     }
 }
 

@@ -140,10 +140,12 @@ public class GUIChat {
         return nombresPanel;
     }
 
-    private void actualizarListaNombres(UserController controller) {
+    public void actualizarListaNombres(UserController controller) {
         ArrayList<Usuario> usuariosEnLinea = controller.getUser().getAmigosConectados(); // Método para obtener los nombres de los usuarios en línea
         DefaultListModel<String> model = new DefaultListModel<>();
+        System.out.println("Nombres: ");
         for (Usuario usuario : usuariosEnLinea) {
+            System.out.println(usuario.getUsername());
             model.addElement(usuario.getUsername());
         }
         nombresList.setModel(model); // Actualizar el modelo de la lista
@@ -356,9 +358,5 @@ public class GUIChat {
         // Refresca la vista
         amigosPanel.revalidate();
         amigosPanel.repaint();
-    }
-
-    public void actualizarListaAmigos() {
-
     }
 }

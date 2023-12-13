@@ -32,6 +32,7 @@ public class CallbackClientImpl extends UnicastRemoteObject implements CallbackC
         // Aquí se puede implementar la lógica necesaria para manejar la notificación de desconexión de un amigo.
         // Por ejemplo, actualizar la interfaz gráfica para reflejar el estado de desconexión del amigo.
         if (controller != null) {
+            System.out.println(usuario.getUsername() + " se ha desconectado");
             controller.actualizarAmigosConectados(usuario, false);
         }
     }
