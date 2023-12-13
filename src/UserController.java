@@ -29,6 +29,7 @@ public class UserController {
     private Usuario user;
 
     private GUIChat vChat;
+    private String contrasena;
 
     // Constructor que recibe las interfaces del servidor y del cliente
     public UserController(CallbackServerInterface server, CallbackClientImpl client) {
@@ -39,9 +40,9 @@ public class UserController {
 
     // Método para registrar un nuevo usuario
     public boolean registrarse(String usuario, String contrasena) {
-        String passwdHash = hashPassword(contrasena);
+        this.contrasena = hashPassword(contrasena);
         try {
-            user = server.registrarUsuario(client, usuario, passwdHash);
+            user = server.registrarUsuario(client, usuario, this.contrasena);
             System.out.println("Registro exitoso");
         } catch (RemoteException e) {
             System.out.println("Error al registrar usuario: " + e.getMessage());
@@ -53,8 +54,8 @@ public class UserController {
     // Método para iniciar sesión
     public boolean iniciarSesion(String usuario, String contrasena) {
         try {
-            String passwdHash = hashPassword(contrasena);
-            user = server.iniciarSesion(client, usuario, passwdHash);
+            this.contrasena = hashPassword(contrasena);
+            user = server.iniciarSesion(client, usuario, this.contrasena);
             System.out.println("Inicio de sesion exitoso");
             System.out.println("Amigos de " + user.getUsername() + ": " + user.getAmigos());
             return true;
@@ -67,7 +68,7 @@ public class UserController {
     // Método para cerrar sesión
     public boolean cerrarSesion() {
         try {
-            server.cerrarSesion(user);
+            server.cerrarSesion(user, this.contrasena);
             System.out.println("Sesion cerrada correctamente");
             return true;
         } catch (RemoteException e) {
@@ -92,7 +93,7 @@ public class UserController {
     // Método para enviar una solicitud de amistad
     public boolean pedirAmistad(String usuario) {
         try {
-            server.pedirAmistad(user.getUsername(), usuario);
+            server.pedirAmistad(user.getUsername(), usuario, this.contrasena);
             System.out.println("Petición de amistad enviada correctamente");
             return true;
 
@@ -106,7 +107,7 @@ public class UserController {
     public boolean aceptarAmistad(String username) {
         Usuario nuevoAmigo = null;
         try {
-            nuevoAmigo = server.aceptarAmistad(user, username);
+            nuevoAmigo = server.aceptarAmistad(user, username, this.contrasena);
             System.out.println("Amistad aceptada");
             if (nuevoAmigo != null) {
                 user.eliminarSolicitud(username);
@@ -123,7 +124,7 @@ public class UserController {
     // Método para rechazar una solicitud de amistad
     public boolean rechazarAmistad(String usuario) {
         try {
-            if (server.rechazarAmistad(user.getUsername(), usuario)) {
+            if (server.rechazarAmistad(user.getUsername(), usuario, this.contrasena)) {
                 user.eliminarSolicitud(usuario);
                 System.out.println("Peticion de amistad rechazada");
                 return true;
@@ -138,7 +139,7 @@ public class UserController {
     // Método para eliminar a un amigo
     public boolean eliminarAmigo(String usuario) {
         try {
-            if (server.eliminarAmigo(user, usuario)) {
+            if (server.eliminarAmigo(user, usuario, this.contrasena)) {
                 user.eliminarAmigo(usuario);
                 System.out.println("se ha eliminado correctamente al amigo");
                 return true;
@@ -152,7 +153,7 @@ public class UserController {
     public ArrayList<String> obtenerSolicitudesPendientes() {
         //ArrayList<String> solicitudes = new ArrayList<>();
         try {
-            return server.obtenerSolicitudes(user.getUsername());
+            return server.obtenerSolicitudes(user.getUsername(), this.contrasena);
         } catch (RemoteException e) {
             System.out.println("Error al obtener las solicitudes de amistad de " + user.getUsername() + ": " + e.getMessage());
             return null;
@@ -183,7 +184,7 @@ public class UserController {
                 try {
                     if (!amigo.chatIniciado()) iniciarChat(usuario);
                     System.out.println("Mensaje de " + usuario + ": " + mensaje);
-                    amigo.recibirMensaje(mensaje, usuario);
+                    amigo.recibirMensaje(user.getUsername(), mensaje);
                     System.out.println("Mensaje enviado correctamente");
                     return true;
                 } catch (RemoteException e) {
@@ -260,5 +261,9 @@ public class UserController {
         if (amistad)
 
             vChat.actualizarListaAmigos();
+    }
+
+    public void setMensajero(MensajeroInterface mensajero) {
+        user.setMensajero(mensajero);
     }
 }

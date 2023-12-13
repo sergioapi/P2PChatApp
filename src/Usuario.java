@@ -189,8 +189,8 @@ public class Usuario implements Serializable {
         return conectado;
     }
 
-    public void recibirMensaje(String mensaje, String amigo) throws RemoteException {
-        mensajero.recibirMsj(mensaje, amigo);
+    public void recibirMensaje(String amigo, String mensaje) throws RemoteException {
+        mensajero.recibirMsj(amigo, mensaje);
     }
 
     public MensajeroInterface getMensajero() {

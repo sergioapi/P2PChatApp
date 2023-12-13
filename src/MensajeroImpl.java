@@ -21,7 +21,7 @@ public class MensajeroImpl extends UnicastRemoteObject implements MensajeroInter
     }
 
     // Método para recibir mensajes
-    public String recibirMsj(String msj, String sender) {
+    public String recibirMsj(String sender, String msj) {
         System.out.println("Mensaje de " + sender + ": " + msj);
         // Retorna el mensaje recibido tal como está
         controller.actualizarMensajes(sender, msj);

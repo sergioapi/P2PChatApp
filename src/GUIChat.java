@@ -4,7 +4,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.BufferedReader;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,9 +15,6 @@ public class GUIChat {
     private JTextArea chatArea;
     private JTextField inputField;
     private JButton sendButton;
-    private Process process;
-    private BufferedReader reader;
-    private Timer timer;
     private ArrayList<String> nombres;
     private Map<String, String> mensajesPorUsuario;
     private JList<String> nombresList;
@@ -72,22 +68,15 @@ public class GUIChat {
 
         chatMenuItem.addActionListener(e -> cambiarVista("ChatPanel"));
         listaNombresMenuItem.addActionListener(e -> {
-            try {
-                actualizarListaSolicitudes(controller);
-                cambiarVista("ListaNombresPanel");
-            } catch (RemoteException ex) {
-                ex.printStackTrace();
-            }
+            actualizarListaSolicitudes(controller);
+            cambiarVista("ListaNombresPanel");
         });
 
         amigosMenuItem.addActionListener(e -> {
-            try {
-                actualizarListaAmigos(controller); // Actualizar la lista de amigos
-                cambiarVista("AmigosPanel"); // Cambiar la vista para mostrar el panel actualizado
-            } catch (RemoteException ex) {
-                ex.printStackTrace();
-            }
+            actualizarListaAmigos(controller); // Actualizar la lista de amigos
+            cambiarVista("AmigosPanel"); // Cambiar la vista para mostrar el panel actualizado
         });
+
         // Agregar un apartado para enviar solicitud de amistad
         JMenuItem enviarSolicitudAmistadItem = new JMenuItem("Enviar Solicitud de Amistad");
         listaNombresMenu.add(enviarSolicitudAmistadItem);
@@ -98,7 +87,7 @@ public class GUIChat {
                 if (nombreIngresado != null && !nombreIngresado.trim().isEmpty()) {
                     String nombreSolicitado = nombreIngresado.trim();
                     // Lógica adicional con el nombre ingresado
-                    controller.pedirAmistad(nombreIngresado);
+                    controller.pedirAmistad(nombreSolicitado);
                 }
             }
         });
@@ -118,6 +107,8 @@ public class GUIChat {
             if (!e.getValueIsAdjusting()) {
                 String selectedName = nombresList.getSelectedValue();
                 if (selectedName != null) {
+                    if (!mensajesPorUsuario.containsKey(selectedName))
+                        mensajesPorUsuario.put(selectedName, "");
                     chatArea.setText(mensajesPorUsuario.get(selectedName));
                 } else {
                     chatArea.setText("¡Selecciona un chat para empezar a hablar!");
@@ -177,28 +168,24 @@ public class GUIChat {
             return; // No enviar mensajes vacíos o si no hay destinatario seleccionado
         }
 
-        try {
-            System.out.println("Mensaje de " + destinatario + ": " + mensaje);
-            // Envía el mensaje al destinatario a través del UserController
-            if (controller.enviarMensaje(destinatario, mensaje)) {
-                // Actualiza la interfaz de usuario con el mensaje enviado
-                String chatHistory = mensajesPorUsuario.getOrDefault(destinatario, "");
-                String messaje = controller.getNombreUsuario() + ": " + mensaje + "\n";
+        System.out.println("Mensaje del usuario para " + destinatario + ": " + mensaje);
+        // Envía el mensaje al destinatario a través del UserController
+        if (controller.enviarMensaje(destinatario, mensaje)) {
+            // Actualiza la interfaz de usuario con el mensaje enviado
+            String chatHistory = mensajesPorUsuario.getOrDefault(destinatario, "");
+            String messaje =  "Tú: " + mensaje + "\n";
 
-                chatHistory += messaje;
-                mensajesPorUsuario.put(destinatario, chatHistory);
-                chatArea.setText(chatHistory);
-            } else {
-                // Manejar el caso en que el mensaje no se pudo enviar
-                System.out.println("Error al enviar el mensaje.");
-            }
-
-            // Limpia el campo de texto de entrada
-            inputField.setText("");
-        } catch (Exception e) {
-            e.printStackTrace();
-            // Manejar error de comunicación aquí
+            chatHistory += messaje;
+            mensajesPorUsuario.put(destinatario, chatHistory);
+            chatArea.setText(chatHistory);
+        } else {
+            // Manejar el caso en que el mensaje no se pudo enviar
+            System.out.println("Error al enviar el mensaje.");
         }
+
+        // Limpia el campo de texto de entrada
+        inputField.setText("");
+
     }
 
     private void appendMessage(String sender, String message) {
@@ -216,7 +203,7 @@ public class GUIChat {
         cl.show(mainPanel, nombreVista);
     }
 
-    private JPanel createListaSolicitudes(UserController controller) throws RemoteException {
+    private JPanel createListaSolicitudes(UserController controller) {
         panelListaSolicitudes = new JPanel();
         panelListaSolicitudes.setLayout(new BoxLayout(panelListaSolicitudes, BoxLayout.Y_AXIS));
 
@@ -225,7 +212,7 @@ public class GUIChat {
         return panelListaSolicitudes;
     }
 
-    private void actualizarListaSolicitudes(UserController controller) throws RemoteException {
+    private void actualizarListaSolicitudes(UserController controller) {
         panelListaSolicitudes.removeAll(); // Elimina todos los componentes actuales
 
         // Obtener las solicitudes pendientes de amistad
@@ -240,27 +227,15 @@ public class GUIChat {
                 JButton rechazarButton = new JButton("Rechazar");
 
                 aceptarButton.addActionListener(e -> {
-                    try {
-                        // Aceptar la solicitud de amistad y actualizar la lista
-                        controller.getServer().aceptarAmistad(controller.getUser(), nombre);
-                        actualizarListaSolicitudes(controller);
-                    } catch (RemoteException ex) {
-                        ex.printStackTrace();
-                    }
+                    // Aceptar la solicitud de amistad y actualizar la lista
+                    controller.aceptarAmistad(nombre);
+                    actualizarListaSolicitudes(controller);
                 });
 
                 rechazarButton.addActionListener(e -> {
                     // Rechazar la solicitud de amistad y actualizar la lista
-                    try {
-                        controller.getServer().rechazarAmistad(controller.getNombreUsuario(), nombre);
-                    } catch (RemoteException ex) {
-                        throw new RuntimeException(ex);
-                    }
-                    try {
-                        actualizarListaSolicitudes(controller);
-                    } catch (RemoteException ex) {
-                        ex.printStackTrace();
-                    }
+                    controller.rechazarAmistad(nombre);
+                    actualizarListaSolicitudes(controller);
                 });
 
                 // Añadir los componentes al panel de nombre
@@ -278,12 +253,12 @@ public class GUIChat {
     }
 
     // Método para crear el panel de amigos
-    private JPanel createAmigosPanel(UserController controller) throws RemoteException {
+    private JPanel createAmigosPanel(UserController controller) {
         JPanel amigosPanel = new JPanel();
         amigosPanel.setLayout(new BoxLayout(amigosPanel, BoxLayout.Y_AXIS));
 
-        // Obtiene la lista de amigos del usuario
-        ArrayList<String> amigos = controller.getServer().obtenerAmistades(controller.getNombreUsuario());
+        // Obtiene la lista actualizada de amigos
+        ArrayList<String> amigos = controller.getUser().getAmigos();
 
 
         if (amigos != null && !amigos.isEmpty()) {
@@ -298,24 +273,16 @@ public class GUIChat {
                 // Acción para eliminar amigo
                 eliminarAmigoBtn.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
-                        try {
-                            if (controller.eliminarAmigo(amigo)) {
-                                // Actualizar la lista de amigos del usuario
-                                controller.getUser().eliminarAmigo(amigo);
-
-                                // Actualizar la GUI
-                                actualizarListaAmigos(controller);
-                            }
-                        } catch (RemoteException ex) {
-                            ex.printStackTrace();
+                        // Actualizar la lista de amigos del usuario
+                        if (controller.eliminarAmigo(amigo)) {
+                            // Actualizar la GUI
+                            actualizarListaAmigos(controller);
                         }
                     }
                 });
-
                 amigoPanel.add(nombreAmigo);
                 amigoPanel.add(eliminarAmigoBtn);
                 amigosPanel.add(amigoPanel);
-
             }
         } else {
             // Muestra un mensaje si no hay amigos
@@ -357,7 +324,8 @@ public class GUIChat {
             chatArea.setText(chatHistory);
         }
     }
-    private void actualizarListaAmigos(UserController controller) throws RemoteException {
+
+    private void actualizarListaAmigos(UserController controller) {
         // Obtiene la lista actualizada de amigos
         ArrayList<String> amigos = controller.getUser().getAmigos();
 
@@ -373,20 +341,13 @@ public class GUIChat {
 
             eliminarAmigoBtn.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    try {
-                        if (controller.eliminarAmigo(amigo)) {
-                            // Actualizar la lista de amigos del usuario
-                            controller.getUser().eliminarAmigo(amigo);
-
-                            // Actualizar la GUI
-                            actualizarListaAmigos(controller);
-                        }
-                    } catch (RemoteException ex) {
-                        ex.printStackTrace();
+                    // Actualizar la lista de amigos del usuario
+                    if (controller.eliminarAmigo(amigo)) {
+                        // Actualizar la GUI
+                        actualizarListaAmigos(controller);
                     }
                 }
             });
-
             amigoPanel.add(nombreAmigo);
             amigoPanel.add(eliminarAmigoBtn);
             amigosPanel.add(amigoPanel);
@@ -396,6 +357,7 @@ public class GUIChat {
         amigosPanel.revalidate();
         amigosPanel.repaint();
     }
+
     public void actualizarListaAmigos() {
 
     }

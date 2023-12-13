@@ -71,6 +71,7 @@ public class MainApp {
             exportedObj = new MensajeroImpl(controller);
             Naming.rebind(urlRegistro, exportedObj);
             System.out.println("Objeto remoto del cliente exportado");
+            controller.setMensajero(exportedObj);
             GUIChat chat = new GUIChat(controller);
             //controller.setvChat(chat);
         } catch (RemoteException e) {
