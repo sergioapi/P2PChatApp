@@ -278,6 +278,38 @@ public class UserController {
         vChat.actualizarListaNombres(this);
     }
 
+    // Método para cambiar la contraseña del usuario
+    public boolean cambiarContrasena(String contrasenaActual, String contrasenaNueva) throws RemoteException{
+        try {
+            // Verificar si la contraseña actual es correcta
+            if (!this.contrasena.equals(hashPassword(contrasenaActual))) {
+                System.out.println("La contraseña actual no coincide.");
+                return false;
+            }
+
+            // Hash de la nueva contraseña
+            String nuevaContrasenaHash = hashPassword(contrasenaNueva);
+            // Hash de la nueva contraseña
+            String contrasenaActualHash = hashPassword(contrasenaActual);
+
+            // Solicitar al servidor cambiar la contraseña
+            boolean exito = server.cambiarContrasena(user, contrasenaActualHash, nuevaContrasenaHash);
+            if (exito) {
+                // Actualizar la contraseña almacenada en el controlador
+                this.contrasena = nuevaContrasenaHash;
+                System.out.println("Contraseña cambiada con éxito.");
+                return true;
+            } else {
+                System.out.println("Error al cambiar la contraseña.");
+                return false;
+            }
+        } catch (RemoteException e) {
+            System.out.println("Error remoto al cambiar la contraseña: " + e.getMessage());
+            return false;
+        }
+    }
+
+
     public void setMensajero(MensajeroInterface mensajero) {
         user.setMensajero(mensajero);
     }

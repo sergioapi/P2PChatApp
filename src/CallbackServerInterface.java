@@ -37,12 +37,10 @@ public interface CallbackServerInterface extends Remote {
     // Método para eliminar a un amigo
     public boolean eliminarAmigo(Usuario usuario1, String username2, String contrasena) throws RemoteException;
 
-    // Método para obtener la lista de amigos de un usuario
-    public ArrayList<String> obtenerAmistades(String usuario, String contrasena) throws RemoteException;
-
     // Método para obtener la lista de solicitudes pendientes de un usuario
     public ArrayList<String> obtenerSolicitudes(String usuario, String contrasena) throws RemoteException;
 
-    // Método para obtener la dirección de un usuario (no implementado)
-    public String obtenerDireccion(String usuario, String contrasena) throws RemoteException;
+    // Método para cambiar la contraseña de un usuario
+    public boolean cambiarContrasena(Usuario user, String contrasenaActualHash, String nuevaContrasenaHash) throws RemoteException;
+
 }

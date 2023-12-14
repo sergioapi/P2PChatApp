@@ -119,6 +119,19 @@ public class GUIChat {
         sendButton.addActionListener(e -> sendMessage(controller, nombresList.getSelectedValue(), inputField.getText()));
         inputField.addActionListener(e -> sendMessage(controller, nombresList.getSelectedValue(), inputField.getText()));
 
+        // Agregar una opción en el menú para cambiar la contraseña
+        JMenu configuracionMenu = new JMenu("Configuración");
+        JMenuItem cambiarContrasenaItem = new JMenuItem("Cambiar Contraseña");
+        configuracionMenu.add(cambiarContrasenaItem);
+        menuBar.add(configuracionMenu);
+
+        cambiarContrasenaItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                mostrarDialogoCambioContrasena(controller);
+            }
+        });
+
         // Si se cierra la ventana se cierra la app
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(600, 300);
@@ -358,5 +371,47 @@ public class GUIChat {
         // Refresca la vista
         amigosPanel.revalidate();
         amigosPanel.repaint();
+    }
+
+    // Método para mostrar el diálogo de cambio de contraseña
+    private void mostrarDialogoCambioContrasena(UserController controller) {
+        JDialog cambioContrasenaDialog = new JDialog(frame, "Cambiar Contraseña", true);
+        cambioContrasenaDialog.setLayout(new FlowLayout());
+
+        JLabel etiquetaActual = new JLabel("Contraseña Actual: ");
+        JPasswordField campoContrasenaActual = new JPasswordField(10);
+        JLabel etiquetaNueva = new JLabel("Nueva Contraseña: ");
+        JPasswordField campoContrasenaNueva = new JPasswordField(10);
+        JButton botonCambiar = new JButton("Cambiar");
+
+        botonCambiar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Lógica para cambiar la contraseña
+                String contrasenaActual = new String(campoContrasenaActual.getPassword());
+                String contrasenaNueva = new String(campoContrasenaNueva.getPassword());
+
+                // Implementa la lógica para cambiar la contraseña en el controlador
+                try {
+                    if (controller.cambiarContrasena(contrasenaActual, contrasenaNueva)) {
+                        JOptionPane.showMessageDialog(cambioContrasenaDialog, "Contraseña cambiada con éxito.");
+                        cambioContrasenaDialog.dispose();
+                    } else {
+                        JOptionPane.showMessageDialog(cambioContrasenaDialog, "Error al cambiar la contraseña.", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (RemoteException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
+
+        cambioContrasenaDialog.add(etiquetaActual);
+        cambioContrasenaDialog.add(campoContrasenaActual);
+        cambioContrasenaDialog.add(etiquetaNueva);
+        cambioContrasenaDialog.add(campoContrasenaNueva);
+        cambioContrasenaDialog.add(botonCambiar);
+
+        cambioContrasenaDialog.pack();
+        cambioContrasenaDialog.setVisible(true);
     }
 }
