@@ -52,8 +52,7 @@ public class CallbackClientImpl extends UnicastRemoteObject implements CallbackC
     }
 
     public void setController(UserController controller) {
-        if (controller != null)
-            this.controller = controller;
+        if (controller != null) this.controller = controller;
     }
 }
 
